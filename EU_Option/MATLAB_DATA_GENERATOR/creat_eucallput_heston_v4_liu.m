@@ -32,7 +32,7 @@ upperbound = [Kmax Tmax rmax  rhomax kapmax gammamax vbarmax v0max ];
  v0    = X_scaled(:,8);
 
 
-
+% % misc comment for testing
 % % feller condition 
 % feller = 2.0*kap.*th-sig;
 
