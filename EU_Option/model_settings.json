@@ -1,0 +1,32 @@
+{
+  "training_modes": ["mse", "u_T", "u_K", "u_KT"],
+  "epochs": [2, 5, 10, 20, 50, 100],
+  "heston": {
+    "paths": {
+      "input_data": "Heston_Constraint/data/Heston_input_data.csv",
+      "output_data": "Heston_Constraint/data/Heston_output_data.csv",
+      "true_grads": "Heston_Constraint/data/Heston_numerical_grads.csv",
+      "model_folder": "Heston_Constraint/heston_model_folder/final_models",
+      "plots_folder": "Heston_Constraint/plots",
+      "losses": "Heston_Constraint/Losses"
+    },
+    "input_data_labels": ["S", "T", "K", "r", "rho", "kap", "gamma", "v0", "vbar"],
+    "output_data_labels": ["Vc", "Vp"],
+    "grad_mat_cols": ["u_T", "u_K", "u_r", "u_rho", "u_kap", "u_gamma", "u_v0", "u_vbar"],
+    "true_grad_labels": ["dCdS", "dPdS", "dCdT", "dPdT", "dCdK", "dPdK"]
+  },
+  "bs": {
+    "paths": {
+      "input_data": "BS_Constraint/data/BS_input_data.csv",
+      "output_data": "BS_Constraint/data/BS_output_data.csv",
+      "true_grads": "BS_Constraint/data/BS_analytic_grads.csv",
+      "model_folder": "BS_Constraint/BS_model_folder",
+      "plots_folder": "BS_Constraint/plots",
+      "losses": "BS_Constraint/Losses"
+  },
+    "input_data_labels": ["S", "T", "K", "r", "vbar"],
+    "output_data_labels": ["Vc", "Vp"],
+    "grad_mat_cols": ["u_T", "u_K", "u_r", "u_v"],
+    "true_grad_labels": ["dCdT", "dPdT", "dCdK", "dPdK"]
+  }
+}

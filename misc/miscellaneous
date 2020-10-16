@@ -1,0 +1,94 @@
+### MISCELLANEOUS
+
+# PROGRESS TRACKING
+- Was testing adjusting learning rate, realized that deriv constraints were wrongly implemented so fixed gradient calcs
+(as reducing inputs also changed grad_mat dimensions so I was using the wrong gradients)
+-
+
+## TODO: mse_10, u_KT_2, u_T_2, u_T_20, u_T_50
+## TODO: Add callback for 'patience' i.e. to prevent models from training if loss plateaus
+## TODO: does scaling with S affect the derivatives computed by BS model analytically?... also considering the fact that we divide by 1 always
+## TODO: training until completion
+## TODO: Adapt learning rate, weights of loss function components
+## TODO: Focus more on objevtive of achieving arbitrage free conditions, not as much on 'enhancing model performance' (although this is still important)
+## TODO: Considerations regarding why model training is so much more difficult when dealing with u_T (and u_KT) instead of u_K
+
+
+# Eliminate negative dVdT from training set
+# Test with smaller dataset (10,000, 100,000?) so that gradient constraint effect is more visible, and ease of training,
+also include mention of increased dataset as a manner of implicitly generating more accurate gradients
+# Explicit vs implicit gradient constraint implementation
+
+# Consider Black-Scholes again
+# try different activation functions
+# u_T varying more but also smaller scale, weighting factor applied to gradient constraint?...
+# additional gradient constraints lead to longer training time (more complex), but is it possible that given a limited
+# dataset, if we let the models train until they converge, does the gradient constraint variation perform better?....
+
+using y=x for scatter plots instead of line of best fit?.... (as the values should lie along the diagonal)
+
+# MLFLOW!!: Vary learning rate more drastically (i.e. after different number of epochs)
+# Try saving model with standard loss function (to check model saving issues)
+# Model logging i.e. generating plots at different epoch intervals to compare performance over time
+# Check loss function with relu
+# try different optimizer
+# model.fit
+# vary batch sizes
+# big plot containing subplots with epochs x derivative constraints combinations
+# consider using 'wrong' gradient constraints and see the effect this has
+
+THEORY LINKS
+# http://www.timworrall.com/fin-40008/greeks.pdf
+
+CODE_LINKS
+# #https://medium.com/analytics-vidhya/3-different-ways-to-build-and-train-neural-network-in-tensorflow-2-0-10a687a9cc7c
+# #https://towardsdatascience.com/custom-loss-function-in-tensorflow-2-0-d8fa35405e4e
+# #https://danijar.com/structuring-models/
+# #https://www.tensorflow.org/guide/keras/train_and_evaluate#part_ii_writing_your_own_training_evaluation_loops_from_scratch
+# #https://github.com/tensorflow/tensorflow/releases train_step tensorflow 2.2.0 (also reference to model.save issue)
+# #https://www.datatechnotes.com/2019/06/regression-example-with-xgbregressor-in.html
+# https://stackoverflow.com/questions/60930158/tensorflow-saving-subclass-model-which-has-multiple-arguments-to-call-method SAVING MODEL
+# #http://blog.ai.ovgu.de/posts/jens/2019/001_tf20_pitfalls/index.html
+
+
+## MODEL SAVING ATTEMPT
+## MAKE RANDOM PREDICTION SO THAT model.build() IS CALLED AND THE MODEL CAN BE SAVED (model._set_inputs() thing)
+# caller = np.random.uniform(0, 2, (1, 5)).astype(np.float32)
+# model(caller)
+# tf.saved_model.save(model, 'mymodel', signatures=model.call.get_concrete_function(
+#     [tf.TensorSpec(shape=(None, 5), dtype=tf.float32, name='inputs')]))
+# # model.save('mymodel')
+# model_path = Path('/Users/Maximocravero/PycharmProjects/Finance Research/EU_Call/BS_Constraint/model_folder')
+# model_path.mkdir(parents=True, exist_ok=True)
+# model.save(Path(model_path) / 'model')
+
+
+### SAVING MODEL
+caller = np.random.uniform(0, 2, (1, 5)).astype(np.float32)
+model(caller)
+tf.saved_model.save(model, 'mymodel')
+
+### LOADING MODEL
+model = tf.keras.models.load_model('mymodel', compile=False)
+
+
+### SETTING UP MULTIPLE MODEL CONFIGURATION TRAINING LOOP
+for mode in settings.training_modes:
+    for epoch in settings.epochs:
+        name = mode + f'_{epoch}'
+        model = training_loop(train_dataset=train_dataset, val_dataset=val_dataset, epochs=epoch, batch=batch,
+                              input_dim=x.shape[1], mode=mode,
+                              optimizer=tf.keras.optimizers.Adam(learning_rate=1e-5, beta_1=0.9, beta_2=0.999))
+        caller = np.random.uniform(0, 2, (1, 9)).astype(np.float32)
+        model(caller)
+        model.save(Path(settings.paths.model_folder) / f'{name}')
+
+
+### GENERATING GOODNESS OF FIT PLOTS (FOR DERIVATIVES)
+for model in os.listdir('heston_model_folder'):
+    test_model = tf.keras.models.load_model(f'heston_model_folder/{model}', compile=False)
+    fig = goodness_of_fit(model=test_model, numerical_grads=num_grads.iloc[:100000, :], x_test=x[:100000, :])
+    fig.savefig(f'/Users/Maximocravero/PycharmProjects/Finance Research/EU_Option/Heston_Constraint/plots/good_fit_{model}')
+    fig.close()
+
+### GENERATING DUAL PLOTS
