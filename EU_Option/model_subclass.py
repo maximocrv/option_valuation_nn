@@ -68,7 +68,7 @@ class MyModel(tf.keras.Model):
 
         elif self.mode == 'u_T':
             return tf.reduce_mean(tf.math.square(tf.reshape(y_pred, (y_pred.shape[0])) - y)) \
-                   + tf.reduce_mean(tf.maximum(0, -1 * grad_mat[:, 0]))
+                   + 0.1 * tf.reduce_mean(tf.maximum(0, -1 * grad_mat[:, 0]))
 
         elif self.mode == 'u_KT':
             return tf.reduce_mean(tf.math.square(tf.reshape(y_pred, (y_pred.shape[0])) - y)) \

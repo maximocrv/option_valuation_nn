@@ -87,8 +87,11 @@ def hybrid_training_loop(train_dataset, val_dataset, epochs, batch, input_dim, m
             model.mode = 'mse'
         elif lr_epochs[0] <= epoch < lr_epochs[1]:
             optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rates[1])
-            model.mode = 'u_T'
+            model.mode = 'mse'
         elif lr_epochs[1] <= epoch < lr_epochs[2]:
+            optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rates[2])
+            model.mode = 'mse'
+        elif lr_epochs[2] <= epoch < lr_epochs[3]:
             optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rates[2])
             model.mode = 'u_T'
 
