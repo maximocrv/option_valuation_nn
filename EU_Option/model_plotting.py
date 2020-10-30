@@ -12,7 +12,8 @@ from munch import Munch, munchify
 from sklearn.model_selection import train_test_split
 
 from EU_Option.data_generator import gen_model_data
-from EU_Option.setup_functions import y_x, y_xx, ecdf, trend_coeff_r, listdir_nohidden, get_base_path
+from EU_Option.helpers import listdir_nohidden, get_base_path
+from EU_Option.tools import y_x, y_xx, ecdf, trend_coeff_r
 
 
 def dual_plot(val: np.array, val_pred: np.array, error: list, coeffs: np.poly1d, Rpara: str):

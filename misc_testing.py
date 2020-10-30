@@ -8,8 +8,9 @@ from munch import munchify
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 
-from EU_Option.model_subclass import adaptive_training_loop, training_loop
-from EU_Option.setup_functions import get_base_path, listdir_nohidden, y_x
+from EU_Option.tools import y_x
+from EU_Option.train_helpers import adaptive_training_loop, training_loop, hybrid_training_loop
+from EU_Option.helpers import get_base_path, listdir_nohidden
 from EU_Option.data_generator import gen_model_data, gen_tf_model_data
 from EU_Option.model_plotting import goodness_of_fit, dual_plot
 
@@ -70,18 +71,13 @@ if __name__ == '__main__':
     grads_train, grads_test = train_test_split(analytic_grads, test_size=0.2, random_state=random_state)
     grads_train, grads_val = train_test_split(grads_train, test_size=0.25, random_state=random_state)
 
-    lr_epochs = [10, 30, 60]
-    learning_rates = [1e-4, 1e-5, 1e-6]
+    lr_epochs = [30, 50, 65, 80]
+    learning_rates = [1e-3, 1e-4, 1e-5, 1e-6]
 
-    model, loss, val_loss = adaptive_training_loop(train_dataset=train_dataset, val_dataset=val_dataset, epochs=100,
-                                                   batch=batch, input_dim=x.shape[1], mode='u_K', lr_epochs=lr_epochs,
-                                                   activation='relu', learning_rates=learning_rates)
+    model, loss, val_loss = hybrid_training_loop(train_dataset=train_dataset, val_dataset=val_dataset, epochs=100,
+                                                 batch=batch, input_dim=x.shape[1], mode='mse', lr_epochs=lr_epochs,
+                                                 activation='relu', learning_rates=learning_rates)
 
-    # model_k, loss_k, val_loss_k = training_loop(train_dataset=train_dataset, val_dataset=val_dataset, epochs=100,
-    #                                             batch=batch, input_dim=x.shape[1], mode='u_K', activation='relu')
-    #
-    # model_mse, loss_mse, val_loss_mse = training_loop(train_dataset=train_dataset, val_dataset=val_dataset, epochs=100,
-    #                                                   batch=batch, input_dim=x.shape[1], mode='mse', activation='relu')
 
     # model_path = base_path / Path(settings.paths.model_folder)
     # for model in listdir_nohidden(model_path):

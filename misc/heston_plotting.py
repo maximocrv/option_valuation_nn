@@ -10,7 +10,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 from munch import Munch, munchify
 
-from EU_Option.setup_functions import y_x, y_xx, ecdf, trend_coeff_r, listdir_nohidden, get_base_path
+from EU_Option.helpers import y_x, y_xx, ecdf, trend_coeff_r, listdir_nohidden, get_base_path
 
 
 def dual_plot(val: np.array, val_pred: np.array, error: list, coeffs: np.poly1d, Rpara: str):

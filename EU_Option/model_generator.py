@@ -6,8 +6,8 @@ import pandas as pd
 import tensorflow as tf
 from munch import munchify
 
-from EU_Option.model_subclass import training_loop
-from EU_Option.setup_functions import get_base_path, listdir_nohidden
+from EU_Option.train_helpers import training_loop
+from EU_Option.helpers import get_base_path, listdir_nohidden
 from EU_Option.data_generator import gen_model_data, gen_tf_model_data
 
 if __name__ == '__main__':
