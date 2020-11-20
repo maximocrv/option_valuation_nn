@@ -61,7 +61,7 @@ if __name__ == '__main__':
                                  names=settings.true_grad_labels)
     analytic_grads = np.array(analytic_grads)
 
-    batch = 512
+    batch = 256
     random_state = 1
 
     x_train, y_train, x_val, y_val, x_test, y_test = gen_model_data(x, y_call, random_state=random_state)
@@ -73,7 +73,7 @@ if __name__ == '__main__':
 
     lr_epochs = [30, 50, 65, 80]
     learning_rates = [1e-3, 1e-4, 1e-5, 1e-6]
-
+    # misc_testing(9) 1e-2 grad constraint factor, misc_testing(10) 1e-3 grad constraint factor
     model, loss, val_loss = hybrid_training_loop(train_dataset=train_dataset, val_dataset=val_dataset, epochs=100,
                                                  batch=batch, input_dim=x.shape[1], mode='mse', lr_epochs=lr_epochs,
                                                  activation='relu', learning_rates=learning_rates)

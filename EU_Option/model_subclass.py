@@ -59,19 +59,19 @@ class MyModel(tf.keras.Model):
         grad_mat = l_tape.gradient(y_pred, x)
 
         if self.mode == 'mse':
-            return tf.reduce_mean(tf.math.square(tf.reshape(y_pred, (y_pred.shape[0])) - y))
+            return tf.reduce_mean(tf.math.square(y_pred - y[:, tf.newaxis]))
 
         # WATCH OUT WITH GRAD_MAT HERE IF YOU ARE ADJUSTING THE INPUTS!!!
         elif self.mode == 'u_K':
-            return tf.reduce_mean(tf.math.square(tf.reshape(y_pred, (y_pred.shape[0])) - y)) \
+            return tf.reduce_mean(tf.math.square(y_pred - y[:, tf.newaxis])) \
                    + tf.reduce_mean(tf.maximum(0, 1 * grad_mat[:, 1]))
 
         elif self.mode == 'u_T':
-            return tf.reduce_mean(tf.math.square(tf.reshape(y_pred, (y_pred.shape[0])) - y)) \
-                   + 0.1 * tf.reduce_mean(tf.maximum(0, -1 * grad_mat[:, 0]))
+            return tf.reduce_mean(tf.math.square(y_pred - y[:, tf.newaxis])) \
+                   + 5e-3 * tf.reduce_mean(x[:, 0] * tf.maximum(0, -1 * grad_mat[:, 0]))
 
         elif self.mode == 'u_KT':
-            return tf.reduce_mean(tf.math.square(tf.reshape(y_pred, (y_pred.shape[0])) - y)) \
+            return tf.reduce_mean(tf.math.square(y_pred - y[:, tf.newaxis])) \
                    + tf.reduce_mean(tf.maximum(0, 1 * grad_mat[:, 1])) \
                    + tf.reduce_mean(tf.maximum(0, -1 * grad_mat[:, 0]))
         else:
