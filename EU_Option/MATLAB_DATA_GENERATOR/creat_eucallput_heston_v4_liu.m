@@ -172,10 +172,10 @@ heston_input_data = [S T K r rho kap gamma v0 vbar];
 heston_output_data = [Vc_H Vp_H];
 heston_numerical_grads = [dCdS_H, dPdS_H, dCdT_H, dPdT_H, dCdK_H, dPdK_H];
 
-csvwrite('/Users/Maximocravero/PycharmProjects/Finance Research/EU_Option/BS_Constraint/data/BS_input_data.csv', BS_input_data)
-csvwrite('/Users/Maximocravero/PycharmProjects/Finance Research/EU_Option/BS_Constraint/data/BS_output_data.csv', BS_output_data)
-csvwrite('/Users/Maximocravero/PycharmProjects/Finance Research/EU_Option/BS_Constraint/data/BS_analytic_grads.csv', BS_analytic_grads)
-
-csvwrite('/Users/Maximocravero/PycharmProjects/Finance Research/EU_Option/Heston_Constraint/data/Heston_input_data.csv', heston_input_data)
-csvwrite('/Users/Maximocravero/PycharmProjects/Finance Research/EU_Option/Heston_Constraint/data/Heston_output_data.csv', heston_output_data)
-csvwrite('/Users/Maximocravero/PycharmProjects/Finance Research/EU_Option/Heston_Constraint/data/Heston_numerical_grads.csv', heston_numerical_grads)
+% csvwrite('/Users/Maximocravero/PycharmProjects/Finance Research/EU_Option/BS_Constraint/data/BS_input_data.csv', BS_input_data)
+% csvwrite('/Users/Maximocravero/PycharmProjects/Finance Research/EU_Option/BS_Constraint/data/BS_output_data.csv', BS_output_data)
+% csvwrite('/Users/Maximocravero/PycharmProjects/Finance Research/EU_Option/BS_Constraint/data/BS_analytic_grads.csv', BS_analytic_grads)
+% 
+% csvwrite('/Users/Maximocravero/PycharmProjects/Finance Research/EU_Option/Heston_Constraint/data/Heston_input_data.csv', heston_input_data)
+% csvwrite('/Users/Maximocravero/PycharmProjects/Finance Research/EU_Option/Heston_Constraint/data/Heston_output_data.csv', heston_output_data)
+% csvwrite('/Users/Maximocravero/PycharmProjects/Finance Research/EU_Option/Heston_Constraint/data/Heston_numerical_grads.csv', heston_numerical_grads)

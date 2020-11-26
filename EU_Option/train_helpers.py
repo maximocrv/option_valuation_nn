@@ -3,7 +3,6 @@ import tensorflow as tf
 from EU_Option.model_subclass import MyModel
 
 
-
 def training_loop(train_dataset, val_dataset, epochs, batch, input_dim, mode,
                   optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4, beta_1=0.9, beta_2=0.999),
                   val_acc_metric=tf.keras.metrics.MeanAbsoluteError(), activation='relu'):
@@ -75,8 +74,9 @@ def adaptive_training_loop(train_dataset, val_dataset, epochs, batch, input_dim,
 
 
 def hybrid_training_loop(train_dataset, val_dataset, epochs, batch, input_dim, mode, learning_rates, lr_epochs,
-                         val_acc_metric=tf.keras.metrics.MeanAbsoluteError(), activation='relu'):
-    model = MyModel(input_dim=input_dim, mode=mode, activation=activation)
+                         val_acc_metric=tf.keras.metrics.MeanAbsoluteError(), activation='relu', sc_weights=(1, 1),
+                         epsilon=1e-4):
+    model = MyModel(input_dim=input_dim, mode=mode, activation=activation, sc_weights=sc_weights, epsilon=epsilon)
 
     losses = []
     val_losses = []

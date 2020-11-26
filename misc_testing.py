@@ -51,15 +51,21 @@ if __name__ == '__main__':
     inputs = pd.read_csv(str(base_path / settings.paths.input_data), header=None,
                          names=settings.input_data_labels)
     inputs = inputs.drop(['S'], axis=1)
-    x = np.array(inputs).astype(np.float32)
 
     outputs = pd.read_csv(str(base_path / settings.paths.output_data), header=None,
                           names=settings.output_data_labels)
+
+    val_inds = outputs.index[outputs.Vc >= 0.001]
+
+    inputs = inputs.iloc[val_inds]
+    x = np.array(inputs).astype(np.float32)
+
+    outputs = outputs.iloc[val_inds]
     y_call = np.array(outputs.Vc).astype(np.float32)
 
     analytic_grads = pd.read_csv(str(base_path / settings.paths.true_grads), header=None,
                                  names=settings.true_grad_labels)
-    analytic_grads = np.array(analytic_grads)
+    analytic_grads = np.array(analytic_grads.iloc[val_inds])
 
     batch = 256
     random_state = 1
@@ -71,22 +77,38 @@ if __name__ == '__main__':
     grads_train, grads_test = train_test_split(analytic_grads, test_size=0.2, random_state=random_state)
     grads_train, grads_val = train_test_split(grads_train, test_size=0.25, random_state=random_state)
 
+    def calc_arbitrage(_model, test_input):
+        grads = y_x(_model, test_input)
+        grads = pd.DataFrame(np.array(grads), columns=settings.grad_mat_cols)
+        arbitrage_T = grads[grads.u_T <= 0]['u_T'].count()
+        arbitrage_K = grads[grads.u_K >= 0]['u_K'].count()
+
+        return arbitrage_T, arbitrage_K
+
+
     lr_epochs = [30, 50, 65, 80]
     learning_rates = [1e-3, 1e-4, 1e-5, 1e-6]
-    # misc_testing(9) 1e-2 grad constraint factor, misc_testing(10) 1e-3 grad constraint factor
-    model, loss, val_loss = hybrid_training_loop(train_dataset=train_dataset, val_dataset=val_dataset, epochs=100,
-                                                 batch=batch, input_dim=x.shape[1], mode='mse', lr_epochs=lr_epochs,
-                                                 activation='relu', learning_rates=learning_rates)
+    sc_weights = [(1e-5, 1), (1e-4, 1), (1e-3, 1), (1e-2, 1), (1e-1, 1), (1, 1)]
+    epsilon = 1e-4
+    tracker = {}
+    for sc_weight in sc_weights:
+        model, loss, val_loss = hybrid_training_loop(train_dataset=train_dataset, val_dataset=val_dataset, epochs=100,
+                                                     batch=batch, input_dim=x.shape[1], mode='mse', lr_epochs=lr_epochs,
+                                                     activation='relu', learning_rates=learning_rates,
+                                                     sc_weights=sc_weight, epsilon=epsilon)
 
+        arbt, arbk = calc_arbitrage(model, x_test)
+        test_pred = np.array(model(x_test))
+        val_loss_test = np.mean(np.abs(test_pred - y_test[..., np.newaxis]))
 
+        tracker[f'{sc_weight}'] = ['arbt: ', arbt, 'arbk: ', arbk, 'val_loss_test: ', val_loss_test]
+
+    # TODO: include weight parameter for the boiz and loop through to get the tings
     # model_path = base_path / Path(settings.paths.model_folder)
-    # for model in listdir_nohidden(model_path):
-    #     test_model = tf.keras.models.load_model(model_path / Path(model), compile=False)
-    #     grads = y_x(test_model, x_test)
-    #     grads = pd.DataFrame(np.array(grads), columns=settings.grad_mat_cols)
-    #     arbitrage_T = grads[grads.u_T <= 0]['u_T'].count()
-    #     arbitrage_K = grads[grads.u_K >= 0]['u_K'].count()
-    #
-    #     print(f'{model}: \n'
-    #           f'arbitrage u_T: {arbitrage_T} \n'
-    #           f'arbitrage u_K: {arbitrage_K}')
+    # # for model in listdir_nohidden(model_path):
+    # _model = 'u_KT_100'
+    # test_model = tf.keras.models.load_model(model_path / Path(_model), compile=False)
+    # #
+    # print(f'{_model}: \n'
+    #       f'arbitrage u_T: {arbitrage_T} \n'
+    #       f'arbitrage u_K: {arbitrage_K}')

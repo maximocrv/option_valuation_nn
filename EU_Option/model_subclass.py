@@ -33,10 +33,12 @@ class CustomMSE(MeanSquaredError):
 
 
 class MyModel(tf.keras.Model):
-    def __init__(self, input_dim, mode, activation='relu'):
+    def __init__(self, input_dim, mode, activation='relu', sc_weights=(1, 1), epsilon=0):
         super(MyModel, self).__init__()
         self.input_dim = input_dim
         self.mode = mode
+        self.sc_weights = sc_weights
+        self.epsilon = epsilon
         self.dense1 = Dense(400, activation=activation, kernel_initializer=initializers.glorot_uniform(),
                             input_dim=self.input_dim)
         self.dense2 = Dense(400, activation=activation, kernel_initializer=initializers.glorot_uniform())
@@ -62,18 +64,20 @@ class MyModel(tf.keras.Model):
             return tf.reduce_mean(tf.math.square(y_pred - y[:, tf.newaxis]))
 
         # WATCH OUT WITH GRAD_MAT HERE IF YOU ARE ADJUSTING THE INPUTS!!!
-        elif self.mode == 'u_K':
-            return tf.reduce_mean(tf.math.square(y_pred - y[:, tf.newaxis])) \
-                   + tf.reduce_mean(tf.maximum(0, 1 * grad_mat[:, 1]))
-
         elif self.mode == 'u_T':
             return tf.reduce_mean(tf.math.square(y_pred - y[:, tf.newaxis])) \
-                   + 5e-3 * tf.reduce_mean(x[:, 0] * tf.maximum(0, -1 * grad_mat[:, 0]))
+                   + self.sc_weights[0] * tf.reduce_mean(tf.maximum(0, -1 * (grad_mat[:, 0]) - self.epsilon))
+            # threshold to force strict inequality
+            # + 5e-3 * tf.reduce_mean(x[:, 0] * tf.maximum(0, -1 * grad_mat[:, 0]))
+
+        elif self.mode == 'u_K':
+            return tf.reduce_mean(tf.math.square(y_pred - y[:, tf.newaxis])) \
+                   + self.sc_weights[1] * tf.reduce_mean(tf.maximum(0, 1 * grad_mat[:, 1]))
 
         elif self.mode == 'u_KT':
             return tf.reduce_mean(tf.math.square(y_pred - y[:, tf.newaxis])) \
-                   + tf.reduce_mean(tf.maximum(0, 1 * grad_mat[:, 1])) \
-                   + tf.reduce_mean(tf.maximum(0, -1 * grad_mat[:, 0]))
+                   + self.sc_weights[0] * tf.reduce_mean(tf.maximum(0, -1 * (grad_mat[:, 0]) - self.epsilon)) \
+                   + self.sc_weights[1] * tf.reduce_mean(tf.maximum(0, 1 * grad_mat[:, 1]))
         else:
             return 'Error, please enter a valid loss mode'
 
