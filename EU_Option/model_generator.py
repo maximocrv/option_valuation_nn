@@ -68,7 +68,7 @@ if __name__ == '__main__':
         name = mode + f'_{epoch}'
         model, loss, val_loss = training_loop(train_dataset=train_dataset, val_dataset=val_dataset, epochs=epoch,
                                               batch=batch, input_dim=x.shape[1], mode=mode,
-                                              optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4, beta_1=0.9,
+                                              optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3, beta_1=0.9,
                                                                                  beta_2=0.999))
 
         loss = np.array(loss)
