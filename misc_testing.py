@@ -76,7 +76,7 @@ if __name__ == '__main__':
                                  names=settings.true_grad_labels)
     analytic_grads = np.array(analytic_grads.iloc[val_inds])
 
-    batch = 512
+    batch = 256
     random_state = 1
 
     x_train, y_train, x_val, y_val, x_test, y_test = gen_model_data(x, y_call, random_state=random_state)
@@ -91,29 +91,29 @@ if __name__ == '__main__':
 
     _sc_weights = (10, 10)
     epsilon = 0
-    # model_t, loss_t, val_loss_t = training_loop(train_dataset=train_dataset, val_dataset=val_dataset, epochs=20,
-    #                                             batch=batch, input_dim=x.shape[1], mode='u_T',
+    # model_t, loss_t, val_loss_t = training_loop(train_dataset=train_dataset, val_dataset=val_dataset, epochs=10,
+    #                                             batch=batch, input_dim=x.shape[1], mode='u_KT',
     #                                             optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3, beta_1=0.9,
     #                                                                                beta_2=0.999),
-    #                                             sc_weights=_sc_weights, epsilon=epsilon)
+    #                                             sc_weights=(1, 0), epsilon=epsilon)
     # arb_t_T, arb_t_K = calc_arbitrage(model_t, x_test)
     # grads_t = y_x(model_t, x_test)
-
-    # model_k, loss_k, val_loss_k = training_loop(train_dataset=train_dataset, val_dataset=val_dataset, epochs=20,
-    #                                             batch=batch, input_dim=x.shape[1], mode='u_K',
+    #
+    # model_k, loss_k, val_loss_k = training_loop(train_dataset=train_dataset, val_dataset=val_dataset, epochs=10,
+    #                                             batch=batch, input_dim=x.shape[1], mode='u_KT',
     #                                             optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3, beta_1=0.9,
     #                                                                                beta_2=0.999),
-    #                                             sc_weights=_sc_weights, epsilon=epsilon)
+    #                                             sc_weights=(0, 1), epsilon=epsilon)
     # arb_k_T, arb_k_K = calc_arbitrage(model_k, x_test)
     # grads_k = y_x(model_k, x_test)
-
-    model, loss, val_loss = training_loop(train_dataset=train_dataset, val_dataset=val_dataset, epochs=20,
-                                          batch=batch, input_dim=x.shape[1], mode='mse',
-                                          optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3, beta_1=0.9,
-                                                                             beta_2=0.999),
-                                          sc_weights=_sc_weights, epsilon=epsilon)
-    arb_mse_T, arb_mse_K = calc_arbitrage(model, x_test)
-    grads_mse = y_x(model, x_test)
+    #
+    # model, loss, val_loss = training_loop(train_dataset=train_dataset, val_dataset=val_dataset, epochs=10,
+    #                                       batch=batch, input_dim=x.shape[1], mode='mse',
+    #                                       optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3, beta_1=0.9,
+    #                                                                          beta_2=0.999),
+    #                                       sc_weights=(0, 0), epsilon=epsilon)
+    # arb_mse_T, arb_mse_K = calc_arbitrage(model, x_test)
+    # grads_mse = y_x(model, x_test)
 
     # sc_weights = [(1e-5, 1), (1e-4, 1), (1e-3, 1), (1e-2, 1), (1e-1, 1), (1, 1)]
     # epsilon = 1e-5
@@ -146,12 +146,18 @@ if __name__ == '__main__':
     #     error = np.mean(np.abs(y_test - np.reshape(y_pred, (y_pred.shape[0],))))
     #     print(f'{model}:{error}')
 
-    # TODO: include weight parameter for the boiz and loop through to get the tings
-    # model_path = base_path / Path(settings.paths.model_folder)
-    # # for model in listdir_nohidden(model_path):
-    # _model = 'u_KT_100'
-    # test_model = tf.keras.models.load_model(model_path / Path(_model), compile=False)
-    # #
-    # print(f'{_model}: \n'
-    #       f'arbitrage u_T: {arbitrage_T} \n'
-    #       f'arbitrage u_K: {arbitrage_K}')
+    # tracker = {}
+    model_path = base_path / Path(settings.paths.model_folder)
+    # for _model in listdir_nohidden(model_path):
+    # # _model = 'u_KT_100'
+    #     test_model = tf.keras.models.load_model(model_path / Path(_model), compile=False)
+    #     arbitrage_T, arbitrage_K = calc_arbitrage(test_model, x_test)
+    #     tracker[f'{_model}'] = [f'arbitrage u_T: {arbitrage_T} \n', f'arbitrage u_K: {arbitrage_K}']
+
+    for model in sorted(listdir_nohidden(model_path)):
+    # for model in training_settings:
+        test_model = tf.keras.models.load_model(model_path / Path(model), compile=False)
+        # test_model = tf.keras.models.load_model(model_folder_path / Path(f'{model[0]}_{model[1]}'), compile=False)
+        y_pred = test_model.call(x_test)
+        error = np.mean(np.abs(y_test[..., np.newaxis] - y_pred))
+        print(f'{model}:{error}')

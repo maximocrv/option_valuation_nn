@@ -62,9 +62,10 @@ if __name__ == '__main__':
     #                       ('u_T', 5), ('u_T', 10), ('u_T', 20), ('u_T', 50), ('u_T', 100),
     #                      ('u_K', 2), ('u_K', 5), ('u_K', 10), ('u_K', 20), ('u_K', 50), ('u_K', 100)]
 
+    sep_list = [('u_T', 2), ('u_KT', 10), ('u_K', 50), ('u_T', 50), ('mse', 50), ('u_T', 100)]
     # sep_list = [('mse', 20), ('mse', 10), ('u_K', 2)]
-    # for mode, epoch in sep_list:
-    for mode, epoch in product(misc_settings.training_modes, misc_settings.epochs):
+    for mode, epoch in sep_list:
+    # for mode, epoch in product(misc_settings.training_modes, misc_settings.epochs):
         name = mode + f'_{epoch}'
         model, loss, val_loss = training_loop(train_dataset=train_dataset, val_dataset=val_dataset, epochs=epoch,
                                               batch=batch, input_dim=x.shape[1], mode=mode,

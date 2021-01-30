@@ -1,6 +1,6 @@
 {
   "training_modes": ["mse", "u_T", "u_K", "u_KT"],
-  "epochs": [2, 5, 10, 20, 50, 100],
+  "epochs": [2, 10, 50, 100],
   "heston": {
     "paths": {
       "input_data": "Heston_Constraint/data/Heston_input_data.csv",
